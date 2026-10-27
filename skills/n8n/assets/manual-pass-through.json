@@ -1,0 +1,9 @@
+{
+  "name": "Manual pass-through example",
+  "nodes": [
+    {"id":"manual-trigger","name":"Manual Trigger","type":"n8n-nodes-base.manualTrigger","typeVersion":1,"position":[0,0],"parameters":{}},
+    {"id":"pass-through","name":"Pass Through","type":"n8n-nodes-base.noOp","typeVersion":1,"position":[260,0],"parameters":{}}
+  ],
+  "connections": {"Manual Trigger":{"main":[[{"node":"Pass Through","type":"main","index":0}]]}},
+  "settings": {"executionOrder":"v1"}
+}

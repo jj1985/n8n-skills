@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "n8n-api",
+  "version": "1.0.0",
+  "description": "Build workflows and administer n8n using deterministic Python REST tools, including licensed features. No MCP required.",
+  "author": {"name": "jj1985", "url": "https://github.com/jj1985"},
+  "homepage": "https://github.com/jj1985/n8n-skills",
+  "repository": "https://github.com/jj1985/n8n-skills",
+  "keywords": ["n8n", "copilot", "workflows", "automation", "python", "rest-api", "administration"]
+}
