@@ -213,7 +213,7 @@ class Client:
         self.opener = build_opener(NoRedirect(), HTTPSHandler(context=ssl.create_default_context(cafile=ca_file)))
 
     def send(self, method, url, body=None, headers=None):
-        headers = {"Accept": "application/json", "User-Agent": "n8n-copilot-skills/1.0.0", **(headers or {})}
+        headers = {"Accept": "application/json", "User-Agent": "n8n-copilot-skills/1.0.1", **(headers or {})}
         if self.key:
             if any(c in self.key for c in "\r\n"):
                 raise ToolError("Invalid API key")
@@ -317,6 +317,28 @@ def validate_workflow(workflow):
                         raise ToolError("Invalid connection target, type or input index")
 
 
+def prepare_workflow(value, schema, removed, path=""):
+    """Remove response-only fields without rewriting opaque node parameters."""
+    if isinstance(value, list):
+        return [prepare_workflow(v, schema.get("items", {}), removed, f"{path}[{i}]") for i, v in enumerate(value)]
+    if not isinstance(value, dict):
+        return value
+    props = schema.get("properties", {})
+    out = {}
+    for key, item in value.items():
+        spec = props.get(key, {})
+        label = f"{path}.{key}" if path else key
+        omitted = (not path and (key not in props or key == "shared")) or spec.get("readOnly")
+        omitted = omitted or (item is None and key not in schema.get("required", [])
+            and spec.get("type") in {"string", "number", "integer", "boolean", "array", "object"}
+            and not spec.get("nullable"))
+        if omitted:
+            removed.append(label)
+        else:
+            out[key] = prepare_workflow(item, spec, removed, label)
+    return out
+
+
 def request_options(parser):
     parser.add_argument("--base-url", default=os.environ.get("N8N_BASE_URL"), help="Instance URL or API root; default N8N_BASE_URL")
     parser.add_argument("--api-key-env", default="N8N_API_KEY")
@@ -387,9 +409,7 @@ def run(args):
         if args.action == "prepare":
             if not isinstance(workflow, dict):
                 raise ToolError("Select one workflow object from an export array first")
-            props = schema["properties"]
-            removed = [k for k in workflow if k not in props or props[k].get("readOnly")]
-            workflow = {k: v for k, v in workflow.items() if k not in removed}
+            workflow = prepare_workflow(workflow, schema, removed)
         validate(workflow, schema)
         validate_workflow(workflow)
         if args.output:
@@ -457,6 +477,10 @@ def run(args):
             raise ToolError("Operation requires a request body")
         if args.operation in {"createWorkflow", "updateWorkflow"}:
             validate_workflow(body)
+        if args.operation in {"createTag", "updateTag"} and isinstance(body, dict) and "name" in body:
+            # 2.45.4 TagEntity enforces this, but its public schema omits it.
+            # The controller maps any validation failure to HTTP 409.
+            validate(body["name"].strip(), {"type": "string", "minLength": 1, "maxLength": 24}, "tag.name")
         if args.operation == "updateWorkflow" and "publishIfActive" in allowed["query"]:
             # Saving a published workflow otherwise automatically republishes on current n8n.
             query.setdefault("publishIfActive", "false")

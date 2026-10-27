@@ -75,6 +75,8 @@ python tools/validate_package.py
 
 Tests use a local HTTP fixture and offline requests; no n8n credentials are required. They test request construction, mutation previews, draft defaults, validation, errors, pagination, redirects, secrets, webhooks and file transfer. A live licensed instance is still needed for integration acceptance of its node types and business workflows.
 
+Release 1.0.1 also incorporates live testing on n8n 2.45.4: workflow create/read/update, publish/unpublish, protected webhook execution, execution/history inspection, archive/unarchive, credential create/delete, tag association and data-table row insertion/read/deletion. Temporary resources were cleaned up. This verifies those paths on one deployment, not every licensed operation. Live testing identified the server's 24-character tag-name limit and export-only workflow metadata; the client now handles both, with regression tests. The offline suite contains 46 tests.
+
 To update the catalog, install PyYAML in a maintainer environment, obtain a pinned n8n source tree, and run:
 
 ```sh

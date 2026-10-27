@@ -1,11 +1,11 @@
 {
   "name": "jj1985-n8n",
   "owner": {"name": "jj1985"},
-  "metadata": {"description": "n8n workflow and administration tools for GitHub Copilot without MCP", "version": "1.0.0"},
+  "metadata": {"description": "n8n workflow and administration tools for GitHub Copilot without MCP", "version": "1.0.1"},
   "plugins": [{
     "name": "n8n-api",
     "source": "./",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "n8n workflows, executions, credentials, projects, settings, SSO, LDAP, policies, promotions, packages and administration through Python REST tools. Includes all 172 public API operations from n8n 2.45.4 and guidance for server administration.",
     "author": {"name": "jj1985"},
     "repository": "https://github.com/jj1985/n8n-skills",

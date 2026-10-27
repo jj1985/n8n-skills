@@ -16,6 +16,8 @@ The included [manual-pass-through.json](../assets/manual-pass-through.json) is a
 
 ## Draft, publish, test
 
+`workflow prepare` also drops ignored `shared` membership metadata, nested read-only fields (such as node timestamps), and optional null response fields whose request schema doesn't accept null. It reports every removed field. It preserves opaque node parameters and nullable writable values. Review the prepared file; project ownership and workflow tags use their dedicated operations. Description-only edits can preserve `versionId`; don't infer failure solely from an unchanged version ID when only metadata changed.
+
 On release 2.45.4, saving a published workflow normally republishes it. The helper supplies `publishIfActive=false` by default for `updateWorkflow`. Passing `-q publishIfActive=true` explicitly changes that behavior. For the live version, inspect `activeVersionId` and the returned version state; the old `active` boolean is deprecated. Use `publishWorkflow` with an explicitly selected `versionId` when the task requires a particular version, or `unpublishWorkflow` to stop production triggers. Older instances may only expose `activateWorkflow`/`deactivateWorkflow`; verify semantics instead of assuming equivalence across versions.
 
 Before updating, retain a protected full response and extract the workflow object to prepare a new payload. Re-read the resource just before a consequential update if other editors may have changed it. This helper does not implement an atomic compare-and-swap or promise concurrent-edit protection. The bundled update schema marks `versionId` read-only; do not invent an If-Match header or send that field as a lock. Use documented version facilities where supported, otherwise stop on conflicting edits.

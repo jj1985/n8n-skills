@@ -38,6 +38,8 @@ Credential `data` is type-specific. Get the credential type schema before creati
 
 ## Authentication and security settings
 
+Tag names in 2.45.4 must be 1–24 characters after trimming. The public schema omits this bound and the server can report a misleading 409 for an overlong name. The Python tool checks it locally. Source: [TagEntity at the pinned release](https://github.com/n8n-io/n8n/blob/e0c02a617f5e6ede3d6c448aff41f632a782aaca/packages/%40n8n/db/src/entities/tag-entity.ts).
+
 Fetch current writable settings, prepare a minimal intended change while supplying the required full-body fields, and inspect masks/defaults before PUT. Test SSO discovery, issuer/callback URLs, claims and provider requirements using the installed version's documentation. Retain an authorized recovery route before enabling mandatory SSO or changing administrative role mappings. Do not reset users or disable authentication as a shortcut for permission errors.
 
 LDAP sync, role mapping, security policy, redaction enforcement and node restrictions may affect many users or workflows. Match the requested scope. Credential/node policies and attachments have their own precedence; retrieve the current documents and attachments rather than replacing them with a single guessed rule.

@@ -327,6 +327,25 @@ class ApiTests(unittest.TestCase):
         with self.assertRaises(api.ToolError):
             api.validate(True, {"type": "integer"})
 
+    def test_tag_runtime_length_constraint(self):
+        for name in ('x' * 25, '   '):
+            code, result = self.call('createTag', '--body', self.file('tag.json', {'name': name}), '--apply')
+            self.assertEqual(code, 1)
+            self.assertEqual(result['error']['code'], 'invalid_input')
+        self.assertEqual(self.calls, [])
+
+    def test_prepare_null_response_description(self):
+        self.workflow['description'] = None
+        self.workflow['shared'] = [{'project': {'id': 'private', 'type': 'personal'}, 'role': 'workflow:owner'}]
+        self.workflow['nodes'][0]['createdAt'] = '2026-01-01T00:00:00Z'
+        out = str(Path(self.temp.name) / 'prepared.json')
+        code, result = self.run_tool('workflow', 'prepare', self.file('export.json', self.workflow), '--output', out)
+        self.assertEqual(code, 0)
+        self.assertIn('description', result['removed_fields'])
+        self.assertIn('shared', result['removed_fields'])
+        self.assertIn('nodes[0].createdAt', result['removed_fields'])
+        self.assertNotIn('description', json.loads(Path(out).read_text()))
+
     def test_schema_required_nested_field(self):
         with self.assertRaises(api.ToolError):
             api.validate({"nested": {}}, {"properties": {"nested": {"required": ["name"]}}})
